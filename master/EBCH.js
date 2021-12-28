@@ -23,14 +23,11 @@
   const GAGBYPASSINDICATOR = "\uf123";
   var ungarble = 0;
   antiGarbling();
-  crFontSize();
   crCommands();
-  cbFontSize();
   var debug = 0;
   var focus = 1;
   var logging = 0;
   var notifs = 0;
-  var textFile = null;
   var db;
   var dbsetup = 0;
   var textToWrite;
@@ -293,6 +290,7 @@
     }
     //load settings when entering chatroom
     if(data.Content === "ServerEnter" && data.Sender === Player.MemberNumber) {
+      ChatRoomSendLocal("EBCH: !ebchhelp for commands.");
     	Load();
     	if(dbsetup === 0) {openDb("BCLogs"+ JSON.stringify(Player.MemberNumber), "logs" + JSON.stringify(Player.MemberNumber));}
     }
@@ -353,45 +351,6 @@
         return garbled;
       };
     }
-
-  async function crFontSize() {
-    await waitFor(() => !!ElementPositionFix);
-    const EPF = ElementPositionFix;
-    //ElementPositionFix("TextAreaChatLog", ChatRoomFontSize, 1005, 5, 988, 859);
-    ElementPositionFix = function (ElementID, Font, X, Y, W, H) {
-      //console.log("EPF Triggered.");
-      if(ElementID === "TextAreaChatLog" && CurrentScreen === "ChatRoom" && (Player.MemberNumber === 10831 || Player.MemberNumber === 54108))
-      {
-        let EPFfix = EPF(ElementID, 20, X, Y, W, H);
-        if(debug === 1) console.log("Chat Log Font Size Fix.");
-        return EPFfix;
-      }
-      else if(ElementID === "FriendList")
-      {
-        let EPFfix = EPF(ElementID, 28, X, Y, W, H);
-        return EPFfix;
-      }
-
-      let EPFCS = EPF(ElementID, Font, X, Y, W, H);
-      return EPFCS;
-
-    }
-  }
-
-  async function cbFontSize() {
-    await waitFor(() => !!ElementPosition);
-    const EP = ElementPosition;
-    ElementPosition = function (ElementID, X, Y, W, H) {
-      //console.log("EP Triggered.");
-      if(ElementID === "InputChat" && (Player.MemberNumber === 10831 || Player.MemberNumber === 54108))
-      {
-        if(debug === 1) console.log("Chat Box Font Size Fix.")
-        return ElementPositionFix(ElementID, 24, X * 0.691, Y * 0.957, W * 0.98, H * 0.99);
-      }
-      let EPCS = EP(ElementID, X, Y, W, H);
-      return EPCS;
-    }
-  }
 
   async function crCommands() {
     await waitFor(() => !!ChatRoomSendChat);
