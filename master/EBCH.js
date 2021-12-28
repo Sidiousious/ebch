@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Eli's BC Helper
 // @namespace https://www.bondageprojects.com/
-// @version 0.1
+// @version 0.11
 // @description A collection of helpful features for BC
 // @author Elicia (Help from Sid)
 // @match https://bondageprojects.elementfx.com/*
