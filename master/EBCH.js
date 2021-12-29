@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Eli's BC Helper
 // @namespace https://www.bondageprojects.com/
-// @version 0.11
+// @version 0.12
 // @description A collection of helpful features for BC
 // @author Elicia (Help from Sid)
 // @match https://bondageprojects.elementfx.com/*
@@ -119,7 +119,8 @@
 }
 
 	function saveTextAsFileCont() {
-		textToWrite = textToWrite.replaceAll('"',"");
+		if(textToWrite === "") {return ChatRoomSendLocal("EBCH: No content to output, exiting export function.");}
+		//textToWrite = textToWrite.replaceAll('"',"");
 		var textFileAsBlob = new Blob([textToWrite], {type:'text/plain'});
     const datenow = new Date(Date.now());
     var fileNameToSaveAs = "BC ChatLog " + JSON.stringify(Player.Name) + " - " + datenow.toLocaleDateString() + " - " + datenow.toLocaleTimeString();
@@ -358,407 +359,473 @@
     ChatRoomSendChat = function (){
       //console.log("CRSC Triggered.");
       const placeholder = InputChat.placeholder;
-      const msg = ElementValue("InputChat").trim();
-      var msgproc = msg;
+      var msg = ElementValue("InputChat").trim();
       //Add to whitelist
+      
       if(placeholder.indexOf("Whisper") == 0 && logging === 1) {
       	var char = targetfind(Player.MemberNumber);
-  			if(dbsetup === 1) {adddata(placeholder, char.Name, msgproc, "logs" + JSON.stringify(Player.MemberNumber));}
+  			if(dbsetup === 1) {adddata(placeholder, char.Name, msg, "logs" + JSON.stringify(Player.MemberNumber));}
       }
-      if(msgproc.indexOf("!downloadlogs") === 0) {
-      	ChatRoomSendLocal("EBCH: Preparing export.");
-      	saveTextAsFile();
-      	msgproc = "";
-      	
-      }
-      if(msgproc.indexOf("!clearlogs") === 0) {
-      	ChatRoomSendLocal("EBCH: Attempting to clear database.");
-      	var store = "logs" + JSON.stringify(Player.MemberNumber);
-      	clearObjectStore(store);
-      	msgproc = "";
-      }
-      if(msgproc.indexOf("!notifadd") == 0) {
-      	subs = msgproc.substring(10).trim();
-      	msgproc = "";
-      	if(subs !== "") {
-      	notifwords.push(subs);
-      	ChatRoomSendLocal("EBCH: Added " + subs + " to the notification words.");
-      	Save();
-      	} else {
-      	ChatRoomSendLocal("EBCH: No word found.");
-      	}
-      }
-      if(msgproc.indexOf("!notifremove") == 0) {
-      	subs = msgproc.substring(13).trim();
-      	msgproc = "";
-      	if(notifwords.includes(subs) && subs !== "") {
-      		var index = notifwords.indexOf(subs);
-      		if(index > -1) {
-      			notifwords.splice(index,1);
-      			ChatRoomSendLocal("EBCH: Removed " + subs + " from the notification words.");
-      			Save();
-      		}
-      	} else {
-      		ChatRoomSendLocal("EBCH: Notification Word not found in the list or no word was passed.");
-      	}
-      }
-      if(msgproc.indexOf("!notifclear") == 0) {
-      	notifwords = [];
-      	ChatRoomSendLocal("EBCH: Notification Words cleared.");
-      	Save();
-      	msgproc = "";
-      }
-      if(msgproc.indexOf("!notiflist") == 0) {
-      	ChatRoomSendLocal("EBCH: Notification Words: " + notifwords);
-      	msgproc = "";
-      }
-      if(msgproc.indexOf("!hearingwhitelistadd") == 0)
-      {
-      		subs = msgproc.substring(21).trim();
-      		msgproc = "";
-      		var target = targetfind(subs);
-      		if(target !== "" || target !== null || !HearingWhitelist.includes(target.MemberNumber)) {
-      		HearingWhitelist.push(target.MemberNumber);
-      		ChatRoomSendLocal("EBCH: Added " + target.Name + " to the hearing whitelist.");
-      		Save();
-      	} else {
-      		ChatRoomSendLocal("EBCH: Couldn't find target in chatroom.");
-      	}
-      }
-      if(msgproc.indexOf("!hearingwhitelistremove") == 0)
-      {
-      		subs = msgproc.substring(24).trim();
-      		subs = parseInt(subs);
-      		msgproc = "";
-      		if(HearingWhitelist.includes(subs)) {
-      		var index = HearingWhitelist.indexOf(subs);
-      		if(index > -1)
-      		{
-      			HearingWhitelist.splice(index,1);
-      			ChatRoomSendLocal("EBCH: Removed " + subs + " from the hearing whitelist.");
-      			Save();
-      		}
+      if(msg.startsWith("!")) {
+		    if(msg.indexOf("!downloadlogs") === 0) {
+		    	ChatRoomSendLocal("EBCH: Preparing export.");
+		    	saveTextAsFile();
+		    	msg = "";
+		    	ElementValue("InputChat","");
+		    	return;
+		    	
+		    }
+		    else if(msg.indexOf("!clearlogs") === 0) {
+		    	ChatRoomSendLocal("EBCH: Attempting to clear database.");
+		    	var store = "logs" + JSON.stringify(Player.MemberNumber);
+		    	clearObjectStore(store);
+		    	msg = "";
+		    	ElementValue("InputChat","");
+		    	return;
+		    }
+		    else if(msg.indexOf("!notifadd") == 0) {
+		    	subs = msg.substring(10).trim();
+		    	msg = "";
+		    	if(subs !== "") {
+		    	notifwords.push(subs);
+		    	ChatRoomSendLocal("EBCH: Added " + subs + " to the notification words.");
+		    	Save();
+		    	} else {
+		    	ChatRoomSendLocal("EBCH: No word found.");
+		    	}
+		    	ElementValue("InputChat","");
+		    	return;
+		    }
+		    else if(msg.indexOf("!notifremove") == 0) {
+		    	subs = msg.substring(13).trim();
+		    	msg = "";
+		    	if(notifwords.includes(subs) && subs !== "") {
+		    		var index = notifwords.indexOf(subs);
+		    		if(index > -1) {
+		    			notifwords.splice(index,1);
+		    			ChatRoomSendLocal("EBCH: Removed " + subs + " from the notification words.");
+		    			Save();
+		    		}
+		    	} else {
+		    		ChatRoomSendLocal("EBCH: Notification Word not found in the list or no word was passed.");
+		    	}
+		    	ElementValue("InputChat","");
+		    	return;
+		    }
+		    else if(msg.indexOf("!notifclear") == 0) {
+		    	notifwords = [];
+		    	ChatRoomSendLocal("EBCH: Notification Words cleared.");
+		    	Save();
+		    	msg = "";
+		    	ElementValue("InputChat","");
+		    	return;
+		    }
+		    else if(msg.indexOf("!notiflist") == 0) {
+		    	ChatRoomSendLocal("EBCH: Notification Words: " + notifwords);
+		    	msg = "";
+		    	ElementValue("InputChat","");
+		    	return;
+		    }
+		    else if(msg.indexOf("!hearingwhitelistadd") == 0)
+		    {
+		    		subs = msg.substring(21).trim();
+		    		msg = "";
+		    		var target = targetfind(subs);
+		    		if(target !== "" || target !== null || !HearingWhitelist.includes(target.MemberNumber)) {
+		    		HearingWhitelist.push(target.MemberNumber);
+		    		ChatRoomSendLocal("EBCH: Added " + target.Name + " to the hearing whitelist.");
+		    		Save();
+		    	} else {
+		    		ChatRoomSendLocal("EBCH: Couldn't find target in chatroom.");
+		    	}
+		    	ElementValue("InputChat","");
+		    	return;
+		    }
+		    else if(msg.indexOf("!hearingwhitelistremove") == 0)
+		    {
+		    		subs = msg.substring(24).trim();
+		    		subs = parseInt(subs);
+		    		msg = "";
+		    		if(HearingWhitelist.includes(subs)) {
+		    		var index = HearingWhitelist.indexOf(subs);
+		    		if(index > -1)
+		    		{
+		    			HearingWhitelist.splice(index,1);
+		    			ChatRoomSendLocal("EBCH: Removed " + subs + " from the hearing whitelist.");
+		    			Save();
+		    		}
 
-      	} else {
-      		ChatRoomSendLocal("EBCH: Couldn't find target in chatroom.");
-      	}
-      }
-      //list whitelist
-      if(msgproc.indexOf("!hearingwhitelistclear") == 0) {
-      	HearingWhitelist = [];
-      	ChatRoomSendLocal("Hearing Whitelist Cleared");
-      	msgproc = "";
-      	Save();
-      }
-      if(msgproc.indexOf("!hearingwhitelist") == 0) {
-      	ChatRoomSendLocal("Hearing Whitelist: " + HearingWhitelist);
-      	msgproc = "";
-      }
+		    	} else {
+		    		ChatRoomSendLocal("EBCH: Couldn't find target in chatroom.");
+		    	}
+		    	ElementValue("InputChat","");
+		    	return;
+		    }
+		    //list whitelist
+		    else if(msg.indexOf("!hearingwhitelistclear") == 0) {
+		    	HearingWhitelist = [];
+		    	ChatRoomSendLocal("Hearing Whitelist Cleared");
+		    	msg = "";
+		    	Save();
+		    	ElementValue("InputChat","");
+		    	return;
+		    }
+		    else if(msg.indexOf("!hearingwhitelist") == 0) {
+		    	ChatRoomSendLocal("Hearing Whitelist: " + HearingWhitelist);
+		    	msg = "";
+		    	ElementValue("InputChat","");
+		    	return;
+		    }
 
-      //Actions
-      if(msgproc.indexOf("!pet") == 0)
-      {
-        subs = msgproc.substring(5).trim();
-        msgproc = "";
-        if(subs === "")
-        {
-          for (const P of ChatRoomCharacter) {
-            if(P !== Player && P)
-            {
-              Act(target, "ItemHead", "Pet");
-            }
-          }
-        } else {
-          var target = targetfind(subs);
-          if(target){
-            Act(target, "ItemHead", "Pet");
-          } else {
-            ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
-          }
-        }
-      }
-      //poses
-      if(msgproc.indexOf("!yoked") == 0)
-      {
-        subs = msgproc.substring(7).trim();
-        msgproc = "";
-        var target = targetfind(subs);
-        if(target){
-          Pose(target, "Yoked");
-        } else if(subs === "") {
-          Pose(Player, "Yoked");
-        } else {
-          ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
-        }
-      }
+		    //Actions
+		    else if(msg.indexOf("!pet") == 0)
+		    {
+		      subs = msg.substring(5).trim();
+		      msg = "";
+		      if(subs === "")
+		      {
+		        for (const P of ChatRoomCharacter) {
+		          if(P !== Player && P)
+		          {
+		            Act(target, "ItemHead", "Pet");
+		          }
+		        }
+		      } else {
+		        var target = targetfind(subs);
+		        if(target){
+		          Act(target, "ItemHead", "Pet");
+		        } else {
+		          ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
+		        }
+		      }
+		      ElementValue("InputChat","");
+		    	return;
+		    }
+		    //poses
+		    else if(msg.indexOf("!yoked") == 0)
+		    {
+		      subs = msg.substring(7).trim();
+		      msg = "";
+		      var target = targetfind(subs);
+		      if(target){
+		        Pose(target, "Yoked");
+		      } else if(subs === "") {
+		        Pose(Player, "Yoked");
+		      } else {
+		        ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
+		      }
+		      ElementValue("InputChat","");
+		    	return;
+		    }
 
-      if(msgproc.indexOf("!stand") == 0)
-      {
-        subs = msgproc.substring(7).trim();
-        msgproc = "";
-        var target = targetfind(subs);
-        if(target){
-          Pose(target, "BaseLower");
-        } else if(subs === "") {
-          Pose(Player, "BaseLower");
-        } else {
-          ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
-        }
-      }
-      if(msgproc.indexOf("!basehands") == 0)
-      {
-        subs = msgproc.substring(11).trim();
-        msgproc = "";
-        var target = targetfind(subs);
-        if(target){
-          Pose(target, "BaseUpper");
-        } else if(subs === "") {
-          Pose(Player, "BaseUpper");
-        } else {
-          ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
-        }
-      }
-      if(msgproc.indexOf("!kneelspread") === 0)
-      {
-        subs = msgproc.substring(13).trim();
-        msgproc = "";
-        var target = targetfind(subs);
-        if(target){
-          Pose(target, "KneelingSpread");
-        } else if(subs === "") {
-          Pose(Player, "KneelingSpread");
-        } else {
-          ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
-        }
-      }
-      if(msgproc.indexOf("!kneel") == 0)
-      {
-        subs = msgproc.substring(7).trim();
-        msgproc = "";
-        var target = targetfind(subs);
-        if(target){
-          Pose(target, "Kneel");
-        } else if(subs === "") {
-          Pose(Player, "Kneel");
-        } else {
-          ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
-        }
-      }
-      if(msgproc.indexOf("!overhead") == 0)
-      {
-        subs = msgproc.substring(10).trim();
-        msgproc = "";
-        var target = targetfind(subs);
-        if(target){
-          Pose(target, "OverTheHead");
-        } else if(subs === "") {
-          Pose(Player, "OverTheHead");
-        } else {
-          ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
-        }
-      }
-      if(msgproc.indexOf("!hogtied") == 0)
-      {
-        subs = msgproc.substring(9).trim();
-        msgproc = "";
-        var target = targetfind(subs);
-        if(target){
-          Pose(target, "Hogtied");
-        } else if(subs === "") {
-          Pose(Player, "Hogtied");
-        } else {
-          ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
-        }
-      }
-      if(msgproc.indexOf("!allfours") == 0)
-      {
-        subs = msgproc.substring(10).trim();
-        msgproc = "";
-        var target = targetfind(subs);
-        if(target){
-          Pose(target, "AllFours");
-        } else if(subs === "") {
-          Pose(Player, "AllFours");
-        } else {
-          ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
-        }
-      }
-      if(msgproc.indexOf("!backboxtie") == 0)
-      {
-        subs = msgproc.substring(12).trim();
-        msgproc = "";
-        var target = targetfind(subs);
-        if(target){
-          Pose(target, "BackBoxTie");
-        } else if(subs === "") {
-          Pose(Player, "BackBoxTie");
-        } else {
-          ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
-        }
-      }
-      if(msgproc.indexOf("!legsclosed") == 0)
-      {
-        subs = msgproc.substring(11).trim();
-        msgproc = "";
-        var target = targetfind(subs);
-        if(target){
-          Pose(target, "LegsClosed");
-        } else if(subs === "") {
-          Pose(Player, "LegsClosed");
-        } else {
-          ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
-        }
-      }
-      if(msgproc.indexOf("!spread") == 0)
-      {
-        subs = msgproc.substring(8).trim();
-        msgproc = "";
-        var target = targetfind(subs);
-        if(target){
-          Pose(target, "Spread");
-        } else if(subs === "") {
-          Pose(Player, "Spread");
-        } else {
-          ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
-        }
-      }
-      if(msgproc.indexOf("!backtight") == 0)
-      {
-        subs = msgproc.substring(11).trim();
-        msgproc = "";
-        var target = targetfind(subs);
-        if(target){
-          Pose(target, "BackElbowTouch");
-        } else if(subs === "") {
-          Pose(Player, "BackElbowTouch");
-        } else {
-          ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
-        }
-      }
-      if(msgproc.indexOf("!legsopen") == 0)
-      {
-        subs = msgproc.substring(10).trim();
-        msgproc = "";
-        var target = targetfind(subs);
-        if(target){
-          Pose(target, "LegsOpen");
-        } else if(subs === "") {
-          Pose(Player, "LegsOpen");
-        } else {
-          ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
-        }
-      }
-      //ungarble command
-      if (msgproc === "!ungarble")
-      {
-        msgproc = "";
-        if(ungarble === 0)
-        {
-          ungarble = 1;
-          ChatRoomSendLocal("Ungarble turned on (Hearing Whitelist).");
-          Save();
-        }
-        else if (ungarble === 1)
-        {
-          ungarble = 2;
-          ChatRoomSendLocal("Ungarble turned on (all).");
-          Save();
-        }
-        else
-        {
-          ungarble = 0;
-          ChatRoomSendLocal("Ungarble turned off.");
-          Save();
-        }
+		    else if(msg.indexOf("!stand") == 0)
+		    {
+		      subs = msg.substring(7).trim();
+		      msg = "";
+		      var target = targetfind(subs);
+		      if(target){
+		        Pose(target, "BaseLower");
+		      } else if(subs === "") {
+		        Pose(Player, "BaseLower");
+		      } else {
+		        ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
+		      }
+		      ElementValue("InputChat","");
+		    	return;
+		    }
+		    else if(msg.indexOf("!basehands") == 0)
+		    {
+		      subs = msg.substring(11).trim();
+		      msg = "";
+		      var target = targetfind(subs);
+		      if(target){
+		        Pose(target, "BaseUpper");
+		      } else if(subs === "") {
+		        Pose(Player, "BaseUpper");
+		      } else {
+		        ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
+		      }
+		      ElementValue("InputChat","");
+		    	return;
+		    }
+		    else if(msg.indexOf("!kneelspread") === 0)
+		    {
+		      subs = msg.substring(13).trim();
+		      msg = "";
+		      var target = targetfind(subs);
+		      if(target){
+		        Pose(target, "KneelingSpread");
+		      } else if(subs === "") {
+		        Pose(Player, "KneelingSpread");
+		      } else {
+		        ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
+		      }
+		      ElementValue("InputChat","");
+		   	  return;
+		    }
+		    else if(msg.indexOf("!kneel") == 0)
+		    {
+		      subs = msg.substring(7).trim();
+		      msg = "";
+		      var target = targetfind(subs);
+		      if(target){
+		        Pose(target, "Kneel");
+		      } else if(subs === "") {
+		        Pose(Player, "Kneel");
+		      } else {
+		        ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
+		      }
+		      ElementValue("InputChat","");
+		    	return;
+		    }
+		    else if(msg.indexOf("!overhead") == 0)
+		    {
+		      subs = msg.substring(10).trim();
+		      msg = "";
+		      var target = targetfind(subs);
+		      if(target){
+		        Pose(target, "OverTheHead");
+		      } else if(subs === "") {
+		        Pose(Player, "OverTheHead");
+		      } else {
+		        ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
+		      }
+		      ElementValue("InputChat","");
+		    	return;
+		    }
+		    else if(msg.indexOf("!hogtied") == 0)
+		    {
+		      subs = msg.substring(9).trim();
+		      msg = "";
+		      var target = targetfind(subs);
+		      if(target){
+		        Pose(target, "Hogtied");
+		      } else if(subs === "") {
+		        Pose(Player, "Hogtied");
+		      } else {
+		        ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
+		      }
+		      ElementValue("InputChat","");
+		    	return;
+		    }
+		    else if(msg.indexOf("!allfours") == 0)
+		    {
+		      subs = msg.substring(10).trim();
+		      msg = "";
+		      var target = targetfind(subs);
+		      if(target){
+		        Pose(target, "AllFours");
+		      } else if(subs === "") {
+		        Pose(Player, "AllFours");
+		      } else {
+		        ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
+		      }
+		      ElementValue("InputChat","");
+		    	return;
+		    }
+		    else if(msg.indexOf("!backboxtie") == 0)
+		    {
+		      subs = msg.substring(12).trim();
+		      msg = "";
+		      var target = targetfind(subs);
+		      if(target){
+		        Pose(target, "BackBoxTie");
+		      } else if(subs === "") {
+		        Pose(Player, "BackBoxTie");
+		      } else {
+		        ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
+		      }
+		      ElementValue("InputChat","");
+		    	return;
+		    }
+		    else if(msg.indexOf("!legsclosed") == 0)
+		    {
+		      subs = msg.substring(11).trim();
+		      msg = "";
+		      var target = targetfind(subs);
+		      if(target){
+		        Pose(target, "LegsClosed");
+		      } else if(subs === "") {
+		        Pose(Player, "LegsClosed");
+		      } else {
+		        ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
+		      }
+		      ElementValue("InputChat","");
+		    	return;
+		    }
+		    else if(msg.indexOf("!spread") == 0)
+		    {
+		      subs = msg.substring(8).trim();
+		      msg = "";
+		      var target = targetfind(subs);
+		      if(target){
+		        Pose(target, "Spread");
+		      } else if(subs === "") {
+		        Pose(Player, "Spread");
+		      } else {
+		        ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
+		      }
+		      ElementValue("InputChat","");
+		    	return;
+		    }
+		    else if(msg.indexOf("!backtight") == 0)
+		    {
+		      subs = msg.substring(11).trim();
+		      msg = "";
+		      var target = targetfind(subs);
+		      if(target){
+		        Pose(target, "BackElbowTouch");
+		      } else if(subs === "") {
+		        Pose(Player, "BackElbowTouch");
+		      } else {
+		        ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
+		      }
+		      ElementValue("InputChat","");
+		    	return;
+		    }
+		    else if(msg.indexOf("!legsopen") == 0)
+		    {
+		      subs = msg.substring(10).trim();
+		      msg = "";
+		      var target = targetfind(subs);
+		      if(target){
+		        Pose(target, "LegsOpen");
+		      } else if(subs === "") {
+		        Pose(Player, "LegsOpen");
+		      } else {
+		        ChatRoomSendLocal("EBCH: Unable to find " + subs + " in chatroom.");
+		      }
+		      ElementValue("InputChat","");
+		    	return;
+		    }
+		    //ungarble command
+		    else if (msg === "!ungarble")
+		    {
+		      msg = "";
+		      if(ungarble === 0)
+		      {
+		        ungarble = 1;
+		        ChatRoomSendLocal("Ungarble turned on (Hearing Whitelist).");
+		        Save();
+		      }
+		      else if (ungarble === 1)
+		      {
+		        ungarble = 2;
+		        ChatRoomSendLocal("Ungarble turned on (all).");
+		        Save();
+		      }
+		      else
+		      {
+		        ungarble = 0;
+		        ChatRoomSendLocal("Ungarble turned off.");
+		        Save();
+		      }
+		      ElementValue("InputChat","");
+		    	return;
 
-      }
-      if(msgproc.indexOf("!logging") == 0) {
-      	if(logging === 0) {
-      		logging = 1;
-      		ChatRoomSendLocal("EBCH: Chatlogging turned on.");
-      		msgproc = "";
-      		if(dbsetup === 0) {openDb("BCLogs"+ JSON.stringify(Player.MemberNumber), "logs" + JSON.stringify(Player.MemberNumber));}
-      		Save();
-      	} else {
-      		logging = 0;
-      		ChatRoomSendLocal("EBCH: Chatlogging off.");
-      		msgproc = "";
-      		Save();
-      	}
-      }
-      if(msgproc.indexOf("!notifs") == 0) {
-      	if(notifs === 0) {
-      		notifs = 1;
-      		ChatRoomSendLocal("EBCH: Notifications turned on.");
-      		msgproc = "";
-      		Save();
-      	} else {
-      		notifs = 0;
-      		ChatRoomSendLocal("EBCH: Notifications turned off.");
-      		msgproc = "";
-      		Save();
-      	}
-      }
-      if (msgproc.indexOf("!wardrobe") == 0) {
-            var targetnumberstr = msgproc.substring(10).trim();
-            msgproc = "";
-            var target = targetfind(targetnumberstr);
+		    }
+		    else if(msg.indexOf("!logging") == 0) {
+		    	if(logging === 0) {
+		    		logging = 1;
+		    		ChatRoomSendLocal("EBCH: Chatlogging turned on.");
+		    		msg = "";
+		    		if(dbsetup === 0) {openDb("BCLogs"+ JSON.stringify(Player.MemberNumber), "logs" + JSON.stringify(Player.MemberNumber));}
+		    		Save();
+		    	} else {
+		    		logging = 0;
+		    		ChatRoomSendLocal("EBCH: Chatlogging off.");
+		    		msg = "";
+		    		Save();
+		    	}
+		    	ElementValue("InputChat","");
+		    	return;
+		    }
+		    else if(msg.indexOf("!notifs") == 0) {
+		    	if(notifs === 0) {
+		    		notifs = 1;
+		    		ChatRoomSendLocal("EBCH: Notifications turned on.");
+		    		msg = "";
+		    		Save();
+		    	} else {
+		    		notifs = 0;
+		    		ChatRoomSendLocal("EBCH: Notifications turned off.");
+		    		msg = "";
+		    		Save();
+		    	}
+		    	ElementValue("InputChat","");
+		    	return;
+		    }
+		    else if (msg.indexOf("!wardrobe") == 0) {
+		          var targetnumberstr = msg.substring(10).trim();
+		          msg = "";
+		          var target = targetfind(targetnumberstr);
 
-            if(target !== undefined)
-            {
-            	target.OnlineSharedSettings.AllowFullWardrobeAccess = true;
-              target.OnlineSharedSettings.BlockBodyCosplay = false;
-              ChatRoomClickCharacter(target);
-              ChatRoomChangeClothes();
-            } else if (targetnumberstr === "") {
-              ChatRoomClickCharacter(Player);
-              ChatRoomChangeClothes();
-            } else {
-              ChatRoomSendLocal("Error: Unable to find " + targetnumberstr + " in chatroom.");
-            }
-          }
-        if (msgproc === "!Debug")
-        {
-          msgproc = "";
-          if(debug === 0)
-          {
-            debug = 1;
-            ChatRoomSendLocal("Debug = 1.");
-          } else {
-            debug = 0;
-            ChatRoomSendLocal("Debug = 0.");
-          }
-        }
-      if(msgproc.indexOf("!ebchhelp") === 0) {
-      	msgproc = "";
-      	ChatRoomSendLocal("Welcome to EBCH! Script written by Elicia with the help of Sid\nHelp commands:\n!ebchhelp: this help menu.\n!ebchposehelp: displays all the available pose commands.\n!ebchlogginghelp: displays all the chatlogging related commands.\n!ebchnotifhelp: displays all the notification related commands.\n!ebchungarblehelp: displays all the ungarble related commands.");
+		          if(target !== undefined)
+		          {
+		            ChatRoomClickCharacter(target);
+		            ChatRoomChangeClothes();
+		          } else if (targetnumberstr === "") {
+		            ChatRoomClickCharacter(Player);
+		            ChatRoomChangeClothes();
+		          } else {
+		            ChatRoomSendLocal("Error: Unable to find " + targetnumberstr + " in chatroom.");
+		          }
+		          ElementValue("InputChat","");
+		    			return;
+		        }
+		      else if (msg === "!Debug")
+		      {
+		        msg = "";
+		        if(debug === 0)
+		        {
+		          debug = 1;
+		          ChatRoomSendLocal("Debug = 1.");
+		        } else {
+		          debug = 0;
+		          ChatRoomSendLocal("Debug = 0.");
+		          
+		        }
+		        ElementValue("InputChat","");
+		    		return;
+		      }
+		    else if(msg.indexOf("!ebchhelp") === 0) {
+		    	msg = "";
+		    	ChatRoomSendLocal("Welcome to EBCH! Script written by Elicia with the help of Sid\nHelp commands:\n!ebchhelp: this help menu.\n!ebchposehelp: displays all the available pose commands.\n!ebchlogginghelp: displays all the chatlogging related commands.\n!ebchnotifhelp: displays all the notification related commands.\n!ebchungarblehelp: displays all the ungarble related commands.");
+		    	ElementValue("InputChat","");
+		    	return;
+		    }
+		    else if(msg.indexOf("!ebchposehelp") === 0) {
+		    	msg = "";
+		    	ChatRoomSendLocal("Format: !pose name or !pose membernumber, using the pose on its own will target the player.\n ie: !yoked Elicia or simply !yoked.\n!stand,!basehands,!kneel,!kneelspread,!yoked,!overhead,!hogtied,!allfours,!backboxtie,!legsclosed,!legsopen,!spread,!backtight,");
+		    	ElementValue("InputChat","");
+		    	return;
+		    }
+		    else if(msg.indexOf("!ebchlogginghelp") === 0) {
+		    	msg = "";
+		    	ChatRoomSendLocal("Chatlogs are handled individually for each character. Logging commands:\n!logging: switches chatlogging on and off.\n!downloadlogs: Prepares the logs in a textfile and sends it to the user.\n!clearlogs: clears the logs associated to the current character.");
+		    	ElementValue("InputChat","");
+		    	return;
+		    }
+		    else if(msg.indexOf("!ebchnotifhelp") === 0) {
+		    	msg = "";
+		    	ChatRoomSendLocal("Notifs will only trigger while you are tabbed out.\nAllows you to set a list of words that will trigger notifs in local chat.\n!notifs: Turn notifications related to this script on/off.\n!notifadd: Adds a word to the notification list.\n!notifremove: removes a word from the notification list.\n!notifclear: clears the notification list.\n!notiflist: lists the words that will trigger a notification.");
+		    	ElementValue("InputChat","");
+		    	return;
+		    	
+		    }
+		    else if(msg.indexOf("!ebchungarblehelp") === 0) {
+				  msg = "";
+				  ChatRoomSendLocal("Ungarble has 3 settings: Off, Hearing Whitelist, and all. Commands work with both name and number.\n!ungarble: toggles between the ungarble modes.\n!hearingwhitelistadd: allows you to add someone in your chatroom to your ungarble list.\n!hearingwhitelistremove: removes someone from your hearing whitelist. Only works with numbers.\n!hearingwhitelistclear: clears the ungarble list.\n!hearingwhitelist: lists your ungarbled people.");
+				  ElementValue("InputChat","");
+				  return;
+		    } else {
+		    	return CRSC(msg);
+		    } 
+		  } else if (msg === "") {
+				return;
+      } else {
+      	return CRSC(msg);
       }
-      if(msgproc.indexOf("!ebchposehelp") === 0) {
-      msgproc = "";
-      ChatRoomSendLocal("Format: !pose name or !pose membernumber, using the pose on its own will target the player.\n ie: !yoked Elicia or simply !yoked.\n!stand,!basehands,!kneel,!kneelspread,!yoked,!overhead,!hogtied,!allfours,!backboxtie,!legsclosed,!legsopen,!spread,!backtight,");
-      }
-      if(msgproc.indexOf("!ebchlogginghelp") === 0) {
-      	msgproc = "";
-      	ChatRoomSendLocal("Chatlogs are handled individually for each character. Logging commands:\n!logging: switches chatlogging on and off.\n!downloadlogs: Prepares the logs in a textfile and sends it to the user.\n!clearlogs: clears the logs associated to the current character.");
-      }
-      if(msgproc.indexOf("!ebchnotifhelp") === 0) {
-      	msgproc = "";
-      	ChatRoomSendLocal("Notifs will only trigger while you are tabbed out.\nAllows you to set a list of words that will trigger notifs in local chat.\n!notifs: Turn notifications related to this script on/off.\n!notifadd: Adds a word to the notification list.\n!notifremove: removes a word from the notification list.\n!notifclear: clears the notification list.\n!notiflist: lists the words that will trigger a notification.");
-      }
-      if(msgproc.indexOf("!ebchungarblehelp") === 0) {
-      msgproc = "";
-      ChatRoomSendLocal("Ungarble has 3 settings: Off, Hearing Whitelist, and all. Commands work with both name and number.\n!ungarble: toggles between the ungarble modes.\n!hearingwhitelistadd: allows you to add someone in your chatroom to your ungarble list.\n!hearingwhitelistremove: removes someone from your hearing whitelist. Only works with numbers.\n!hearingwhitelistclear: clears the ungarble list.\n!hearingwhitelist: lists your ungarbled people.");
-      }  
-      if (msgproc != "") {
-
-      // Keeps the chat log in memory so it can be accessed with pageup/pagedown
-      ChatRoomLastMessage.push(msgproc);
-      ChatRoomLastMessageIndex = ChatRoomLastMessage.length;
-
-      CommandParse(msgproc);
-      return;
-      }
-      return ElementValue("InputChat", "");
 
 
     }
