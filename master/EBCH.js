@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Eli's BC Helper
 // @namespace https://www.bondageprojects.com/
-// @version 0.13
+// @version 0.14
 // @description A collection of helpful features for BC
 // @author Elicia (Help from Sid)
 // @match https://bondageprojects.elementfx.com/*
@@ -185,7 +185,7 @@
   }
 
   function Pose(tar, pose){
-    if(CharacterCanChangeToPose(tar, pose)){
+    if(CharacterCanChangeToPose(tar, pose) && !tar.BlackList.includes(Player.MemberNumber) && (tar.ItemPermission <=2 || tar.ID == 0 || tar.IsLoverOfPlayer() || tar.IsOwnedByPlayer())){
       CharacterSetActivePose(tar, pose);
       ChatRoomCharacterUpdate(tar);
     } else {
