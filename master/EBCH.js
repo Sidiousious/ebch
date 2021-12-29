@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Eli's BC Helper
 // @namespace https://www.bondageprojects.com/
-// @version 0.12
+// @version 0.13
 // @description A collection of helpful features for BC
 // @author Elicia (Help from Sid)
 // @match https://bondageprojects.elementfx.com/*
@@ -95,11 +95,10 @@
   function retrieveAll(DB_STORE_NAME) {
   		var store = getObjectStore(DB_STORE_NAME, 'readwrite');
   		var msgs = [];
-			store.openCursor().onsuccess = function(event) {
+			store.openCursor().onsuccess = async function(event) {
   		var cursor = event.target.result;
   		if (cursor) {
-  		
-    	msgs = msgs + JSON.stringify(Object.values(cursor.value)[0]) + "\n";
+    	msgs = msgs + JSON.stringify(Object.values(cursor.value)[0]) + " \n";
     	cursor.continue();
   		} else {
     textToWrite = msgs;
