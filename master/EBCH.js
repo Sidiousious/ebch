@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Eli's BC Helper
 // @namespace https://www.bondageprojects.com/
-// @version 0.15
+// @version 0.16
 // @description A collection of helpful features for BC
 // @author Elicia (Help from Sid)
 // @match https://bondageprojects.elementfx.com/*
@@ -188,6 +188,33 @@
     if(CharacterCanChangeToPose(tar, pose) && !tar.BlackList.includes(Player.MemberNumber) && (tar.ItemPermission <=2 || tar.ID == 0 || tar.IsLoverOfPlayer() || tar.IsOwnedByPlayer() || tar.WhiteList.includes(Player.MemberNumber))){
       CharacterSetActivePose(tar, pose);
       ChatRoomCharacterUpdate(tar);
+	  if(pose === "Yoked") {
+		  ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " raises " + tar.Name + "'s hands."}]});
+	  } else if (pose === "BaseLower") {
+		  ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " helps " + tar.Name + " up on their feet."}]});
+	  } else if (pose === "BaseUpper") {
+		  ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " lets " + tar.Name + " relax their arms."}]});
+	  } else if (pose === "KneelingSpread") {
+		  ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " lowers " + tar.Name + " on their knees, forcing their legs open."}]});
+	  } else if (pose === "Kneel") {
+		  ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " lowers " + tar.Name + " on their knees."}]});
+	  } else if (pose === "OverHead") {
+		  ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " forcibly raises " + tar.Name + "'s hands above their head."}]});
+	  } else if (pose === "Hogtied") {
+		  ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " lowers " + tar.Name + " on their belly."}]});
+	  } else if (pose === "AllFours") {
+		  ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " forces " + tar.Name + " on all fours."}]});
+	  } else if (pose === "BackBoxTie") {
+		  ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " draws " + tar.Name + "'s arms behind their back."}]});
+	  }	else if (pose === "LegsClosed") {
+		  ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " helps " + tar.Name + " stand straight with their legs closed."}]});
+	  }	else if (pose === "Spread") {
+		  ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " forces " + tar.Name + " to spread their legs."}]});
+	  } else if (pose === "BackElbowTouch") {
+		  ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " draws " + tar.Name + "'s arms tight behind their back, elbows almost touching."}]});
+	  }	else if (pose === "LegsOpen") {
+		  ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " helps " + tar.Name + " stand straight with their legs open."}]});
+	  }
     } else {
       ChatRoomSendLocal("EBCH: " + tar.Name + " cannot be set to " + pose + " at the moment.");
     }
