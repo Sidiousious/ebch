@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Eli's BC Helper
 // @namespace https://www.bondageprojects.com/
-// @version 0.17
+// @version 0.18
 // @description A collection of helpful features for BC
 // @author Elicia (Help from Sid)
 // @match https://bondageprojects.elementfx.com/*
@@ -380,6 +380,7 @@
     }
 
   async function crCommands() {
+	await waitFor(() => CurrentScreen === "ChatRoom");
     await waitFor(() => !!ChatRoomSendChat);
     const CRSC = ChatRoomSendChat;
     ChatRoomSendChat = function (){
