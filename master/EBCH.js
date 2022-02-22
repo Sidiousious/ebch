@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Eli's BC Helper
 // @namespace https://www.bondageprojects.com/
-// @version 0.21
+// @version 0.22
 // @description A collection of helpful features for BC
 // @author Elicia (Help from Sid)
 // @match https://bondageprojects.elementfx.com/*
@@ -30,6 +30,8 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
   var ungarble = 0;
   antiGarbling();
   crCommands();
+  poseMenuOthers();
+  poseMenuOthersClick();
   var debug = 0;
   var focus = 1;
   var logging = 0;
@@ -37,6 +39,7 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
   var db;
   var dbsetup = 0;
   var textToWrite;
+  var poseui = 1;
 
   //dbfunctions
 
@@ -194,37 +197,42 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
     if(CharacterCanChangeToPose(tar, pose) && !tar.BlackList.includes(Player.MemberNumber) && (tar.ItemPermission <=2 || tar.ID == 0 || tar.IsLoverOfPlayer() || tar.IsOwnedByPlayer() || tar.WhiteList.includes(Player.MemberNumber))){
       CharacterSetActivePose(tar, pose);
       ChatRoomCharacterUpdate(tar);
-    if(pose === "Yoked") {
-      ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " raises " + tar.Name + "'s hands."}]});
-    } else if (pose === "BaseLower") {
-      ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " helps " + tar.Name + " up on their feet."}]});
-    } else if (pose === "BaseUpper") {
-      ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " lets " + tar.Name + " relax their arms."}]});
-    } else if (pose === "KneelingSpread") {
-      ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " lowers " + tar.Name + " on their knees, forcing their legs open."}]});
-    } else if (pose === "Kneel") {
-      ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " lowers " + tar.Name + " on their knees."}]});
-    } else if (pose === "OverTheHead") {
-      ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " forcibly raises " + tar.Name + "'s hands above their head."}]});
-    } else if (pose === "Hogtied") {
-      ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " lowers " + tar.Name + " on their belly."}]});
-    } else if (pose === "AllFours") {
-      ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " forces " + tar.Name + " on all fours."}]});
-    } else if (pose === "BackBoxTie") {
-      ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " draws " + tar.Name + "'s arms behind their back."}]});
-    } else if (pose === "LegsClosed") {
-      ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " helps " + tar.Name + " stand straight with their legs closed."}]});
-    } else if (pose === "Spread") {
-      ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " forces " + tar.Name + " to spread their legs."}]});
-    } else if (pose === "BackElbowTouch") {
-      ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " draws " + tar.Name + "'s arms tight behind their back, elbows almost touching."}]});
-    } else if (pose === "LegsOpen") {
-      ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " helps " + tar.Name + " stand straight with their legs open."}]});
-    }
+    if(tar.MemberNumber === Player.MemberNumber)
+    {
+      return;
     } else {
-      ChatRoomSendLocal("EBCH: " + tar.Name + " cannot be set to " + pose + " at the moment.");
+        if(pose === "Yoked") {
+        ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " raises " + tar.Name + "'s hands."}]});
+        } else if (pose === "BaseLower") {
+        ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " helps " + tar.Name + " up on their feet."}]});
+        } else if (pose === "BaseUpper") {
+        ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " lets " + tar.Name + " relax their arms."}]});
+        } else if (pose === "KneelingSpread") {
+        ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " lowers " + tar.Name + " on their knees, forcing their legs open."}]});
+        } else if (pose === "Kneel") {
+        ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " lowers " + tar.Name + " on their knees."}]});
+        } else if (pose === "OverTheHead") {
+        ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " forcibly raises " + tar.Name + "'s hands above their head."}]});
+        } else if (pose === "Hogtied") {
+        ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " lowers " + tar.Name + " on their belly."}]});
+        } else if (pose === "AllFours") {
+        ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " forces " + tar.Name + " on all fours."}]});
+        } else if (pose === "BackBoxTie") {
+        ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " draws " + tar.Name + "'s arms behind their back."}]});
+        } else if (pose === "LegsClosed") {
+        ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " helps " + tar.Name + " stand straight with their legs closed."}]});
+        } else if (pose === "Spread") {
+        ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " forces " + tar.Name + " to spread their legs."}]});
+        } else if (pose === "BackElbowTouch") {
+        ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " draws " + tar.Name + "'s arms tight behind their back, elbows almost touching."}]});
+        } else if (pose === "LegsOpen") {
+        ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " helps " + tar.Name + " stand straight with their legs open."}]});
+        } else {
+        ChatRoomSendLocal("EBCH: " + tar.Name + " cannot be set to " + pose + " at the moment.");
+        }
+        return;
+      }
     }
-    return;
   }
 
   function Save() {
@@ -233,6 +241,7 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
     var sdebug;
     var sungarble;
     var slogging;
+    var sposeui;
     var sHW;
     var sNW;
     var sN;
@@ -261,6 +270,12 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
     } else {
       sN = JSON.stringify(notifs);
     }
+    if(JSON.stringify(poseui) === null)
+    {
+      sposeui = "0";
+    } else {
+      sposeui = JSON.stringify(poseui);
+    }
     if(JSON.stringify(HearingWhitelist) === null) {
       sHW = "";
     } else {
@@ -271,7 +286,7 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
     } else {
       sNW = JSON.stringify(notifwords);
     }
-    ebchsettings =  sdebug + "," + sungarble + "," + slogging + "," + sN + "|" + sHW + "|" + sNW;
+    ebchsettings =  sdebug + "," + sungarble + "," + slogging + "," + sposeui + "," + sN + "|" + sHW + "|" + sNW;
     ebchsettings = ebchsettings.replaceAll("[","");
     ebchsettings = ebchsettings.replaceAll("]","");
     Player.OnlineSettings.EBCH = ebchsettings;
@@ -305,6 +320,73 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
         ungarble = parseInt(settings[1]);
         logging = parseInt(settings[2]);
         notifs = parseInt(settings[3]);
+        poseui = parseInt(settings[4]);
+      }
+    }
+  }
+
+  function PoseMenuDraw() {
+    if(poseui === 1) {
+      var target = CurrentCharacter;
+      if(CharacterCanChangeToPose(target, "BaseUpper")) {
+        DrawButton(610,10,40,40,"","White","","Base Hands");
+      } else {
+        DrawButton(610,10,40,40,"","Red","","Base Hands");
+      }
+      if(CharacterCanChangeToPose(target, "Yoked")) {
+        DrawButton(655, 10, 40, 40, "", "White","","Hands Up");
+      } else {
+        DrawButton(655, 10, 40, 40, "", "Red","","Hands Up");
+      }
+      if(CharacterCanChangeToPose(target, "OverTheHead")) {
+        DrawButton(700, 10, 40, 40, "", "White","","Hands Up High");
+      } else {
+        DrawButton(700, 10, 40, 40, "", "Red","","Hands Up High");
+      }
+      if(CharacterCanChangeToPose(target, "BackBoxTie")) {
+        DrawButton(745, 10, 40, 40, "", "White","","Back Loose");
+      } else {
+        DrawButton(745, 10, 40, 40, "", "Red","","Back Loose");
+      }
+      if(CharacterCanChangeToPose(target, "BackElbowTouch")) {
+        DrawButton(790, 10, 40, 40, "", "White","","Back Tight");
+      } else {
+        DrawButton(790, 10, 40, 40, "", "Red","","Back Tight");
+      }
+      if(CharacterCanChangeToPose(target, "BaseLower")) {
+        DrawButton(610,55,40,40,"","White","","Stand");
+      } else {
+        DrawButton(610,55,40,40,"","Red","","Stand");
+      }
+      if(CharacterCanChangeToPose(target, "Kneel")) {
+        DrawButton(655,55,40,40,"","White","","Kneel");
+      } else {
+        DrawButton(655,55,40,40,"","Red","","Kneel");
+      }
+      if(CharacterCanChangeToPose(target, "KneelingSpread")) {
+        DrawButton(700,55,40,40,"","White","","Kneel Spread");
+      } else {
+        DrawButton(700,55,40,40,"","Red","","Kneel Spread");
+      }
+      if(CharacterCanChangeToPose(target, "LegsClosed")) {
+        DrawButton(745,55,40,40,"","White","","Standing Closed Legs");
+      } else {
+        DrawButton(745,55,40,40,"","Red","","Standing Closed Legs");
+      }
+      if(CharacterCanChangeToPose(target, "Spread")) {
+        DrawButton(790,55,40,40,"","White","","Standing Spread");
+      } else {
+        DrawButton(790,55,40,40,"","Red","","Standing Spread");
+      }
+      if(CharacterCanChangeToPose(target, "Hogtied")) {
+        DrawButton(850, 10, 40, 40, "", "White","","Belly Lie");
+      } else {
+        DrawButton(850, 10, 40, 40, "", "Red","","Belly Lie");
+      }
+      if(CharacterCanChangeToPose(target, "AllFours")) {
+        DrawButton(850,55,40,40,"","White","","All Fours");
+      } else {
+        DrawButton(850,55,40,40,"","Red","","All Fours");
       }
     }
   }
@@ -385,6 +467,73 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
         //return garbledText + ' <> ' + originalText;
       });
     }
+  async function poseMenuOthersClick() {
+    await waitFor(() => DialogClick);
+    modApi.hookFunction("DialogClick", 4, (args,next) => {
+      if(poseui === 1) {
+          if (MouseIn(610,10,40,40) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "BaseUpper")) {
+          Pose(CurrentCharacter, "BaseUpper");
+          return;
+        }
+        if (MouseIn(655,10,40,40) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "Yoked")) {
+          Pose(CurrentCharacter, "Yoked");
+          return;
+        }
+        if (MouseIn(700,10,40,40) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "OverTheHead")) {
+          Pose(CurrentCharacter, "OverTheHead");
+          return;
+        }
+        if (MouseIn(745,10,40,40) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "BackBoxTie")) {
+          Pose(CurrentCharacter, "BackBoxTie");
+          return;
+        }
+        if (MouseIn(790,10,40,40) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "BackElbowTouch")) {
+          Pose(CurrentCharacter, "BackElbowTouch");
+          return;
+        }
+        if (MouseIn(610,55,40,40) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "BaseLower")) {
+          Pose(CurrentCharacter, "BaseLower");
+          return;
+        }
+        if (MouseIn(655,55,40,40) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "Kneel")) {
+          Pose(CurrentCharacter, "Kneel");
+          return;
+        }
+        if (MouseIn(700,55,40,40) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "KneelingSpread")) {
+          Pose(CurrentCharacter, "KneelingSpread");
+          return;
+        }
+        if (MouseIn(745,55,40,40) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "LegsClosed")) {
+          Pose(CurrentCharacter, "LegsClosed");
+          return;
+        }
+        if (MouseIn(790,55,40,40) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "Spread")) {
+          Pose(CurrentCharacter, "Spread");
+          return;
+        }
+        if (MouseIn(850,10,40,40) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "Hogtied")) {
+          Pose(CurrentCharacter, "Hogtied");
+          return;
+        }
+        if (MouseIn(850,55,40,40) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "AllFours")) {
+          Pose(CurrentCharacter, "AllFours");
+          return;
+        }
+      }
+      
+      next(args);
+    })
+  }
+
+  async function poseMenuOthers() {
+    await waitFor(() => !!DialogDraw);
+    modApi.hookFunction('DialogDraw', 4, (args,next) => {
+      if(CurrentCharacter.ID !== 0 && poseui === 1) {
+        PoseMenuDraw();
+      }
+      next(args);
+    })
+  }
 
   async function crCommands() {
     await waitFor(() => !!ChatRoomSendChat);
@@ -829,7 +978,7 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
         }
         else if(msg.indexOf("!ebchposehelp") === 0) {
           msg = "";
-          ChatRoomSendLocal("Format: !pose name or !pose membernumber, using the pose on its own will target the player.\n ie: !yoked Elicia or simply !yoked.\n!stand,!basehands,!kneel,!kneelspread,!yoked,!overhead,!hogtied,!allfours,!backboxtie,!legsclosed,!legsopen,!spread,!backtight,");
+          ChatRoomSendLocal("!poseui will turn on or off the UI to pose others when you click them.\nFormat: !pose name or !pose membernumber, using the pose on its own will target the player.\n ie: !yoked Elicia or simply !yoked.\n!stand,!basehands,!kneel,!kneelspread,!yoked,!overhead,!hogtied,!allfours,!backboxtie,!legsclosed,!legsopen,!spread,!backtight,");
           ElementValue("InputChat","");
           return;
         }
@@ -851,6 +1000,21 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
           ChatRoomSendLocal("Ungarble has 3 settings: Off, Hearing Whitelist, and all. Commands work with both name and number.\n!ungarble: toggles between the ungarble modes.\n!hearingwhitelistadd: allows you to add someone in your chatroom to your ungarble list.\n!hearingwhitelistremove: removes someone from your hearing whitelist. Only works with numbers.\n!hearingwhitelistclear: clears the ungarble list.\n!hearingwhitelist: lists your ungarbled people.");
           ElementValue("InputChat","");
           return;
+        } else if(msg.indexOf("!poseui") === 0) {
+          msg = "";
+          if (poseui === 0) {
+            ChatRoomSendLocal("EBCH: Pose UI turned on.");
+            poseui = 1;
+            ElementValue("InputChat","");
+            Save();
+            return;
+          } else {
+            ChatRoomSendLocal("EBCH: Pose UI turned off.");
+            poseui = 0;
+            ElementValue("InputChat","");
+            Save();
+            return;
+          }
         } else {
           return next(args);
         }
