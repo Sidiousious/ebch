@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Eli's BC Helper
 // @namespace https://www.bondageprojects.com/
-// @version 0.22
+// @version 0.23
 // @description A collection of helpful features for BC
 // @author Elicia (Help from Sid)
 // @match https://bondageprojects.elementfx.com/*
@@ -320,7 +320,7 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
         ungarble = parseInt(settings[1]);
         logging = parseInt(settings[2]);
         notifs = parseInt(settings[3]);
-        poseui = parseInt(settings[4]);
+        if(settings[4] === "0" || settings[4] === "1") poseui = parseInt(settings[4]);
       }
     }
   }
