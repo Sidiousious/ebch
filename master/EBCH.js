@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Eli's BC Helper
 // @namespace https://www.bondageprojects.com/
-// @version 0.23
+// @version 0.26
 // @description A collection of helpful features for BC
 // @author Elicia (Help from Sid)
 // @match https://bondageprojects.elementfx.com/*
@@ -22,8 +22,8 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
 
 
 (async function () {
-
-  const modApi = bcModSdk.registerMod('EBCH', '0.20');
+  const ver = "0.26"
+  const modApi = bcModSdk.registerMod('EBCH', ver);
   var HearingWhitelist = [];
   var notifwords = [];
   const GAGBYPASSINDICATOR = "\uf123";
@@ -32,6 +32,7 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
   crCommands();
   poseMenuOthers();
   poseMenuOthersClick();
+  ebchLogging();
   var debug = 0;
   var focus = 1;
   var logging = 0;
@@ -40,6 +41,8 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
   var dbsetup = 0;
   var textToWrite;
   var poseui = 1;
+  var lastmsg;
+  var latestupdate = "EBCH updated (" + ver + "):\nAdded HTML chatlogging.\nAdded this changelog.";
 
   //dbfunctions
 
@@ -63,10 +66,11 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
     };
   }
 
-  function adddata(type, sender, text, DB_STORE_NAME) {
+  function adddata(text, DB_STORE_NAME) {
     if (debug === 1) {console.log("add database.", arguments);}
     const datenow = new Date(Date.now());
-    var obj = { logmsg: "[" + datenow.toLocaleDateString() + " - " + datenow.toLocaleTimeString() + " - " + Player.LastChatRoom + "] (" + sender + " - " + type + ") " + text } ;
+    text = text.replaceAll("\n", "<br>");
+    var obj = { logmsg: "[" + datenow.toLocaleDateString() + " - " + datenow.toLocaleTimeString() + " - " + Player.LastChatRoom + "] " + text } ;
     if (typeof blob != 'undefined')
       obj.blob = blob;
     var store = getObjectStore(DB_STORE_NAME, 'readwrite');
@@ -107,7 +111,7 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
       store.openCursor().onsuccess = async function(event) {
       var cursor = event.target.result;
       if (cursor) {
-      msgs = msgs + JSON.stringify(Object.values(cursor.value)[0]) + " \n";
+      msgs = msgs + Object.values(cursor.value)[0];
       cursor.continue();
       } else {
     textToWrite = msgs;
@@ -129,7 +133,7 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
   function saveTextAsFileCont() {
     if(textToWrite === "") {return ChatRoomSendLocal("EBCH: No content to output, exiting export function.");}
     //textToWrite = textToWrite.replaceAll('"',"");
-    var textFileAsBlob = new Blob([textToWrite], {type:'text/plain'});
+    var textFileAsBlob = new Blob([textToWrite], {type:'text/html'});
     const datenow = new Date(Date.now());
     var fileNameToSaveAs = "BC ChatLog " + JSON.stringify(Player.Name) + " - " + datenow.toLocaleDateString() + " - " + datenow.toLocaleTimeString();
     var downloadLink = document.createElement("a");
@@ -286,7 +290,7 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
     } else {
       sNW = JSON.stringify(notifwords);
     }
-    ebchsettings =  sdebug + "," + sungarble + "," + slogging + "," + sposeui + "," + sN + "|" + sHW + "|" + sNW;
+    ebchsettings =  sdebug + "," + sungarble + "," + slogging + "," + sposeui + "," + sN + "," + ver + "|" + sHW + "|" + sNW;
     ebchsettings = ebchsettings.replaceAll("[","");
     ebchsettings = ebchsettings.replaceAll("]","");
     Player.OnlineSettings.EBCH = ebchsettings;
@@ -321,6 +325,10 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
         logging = parseInt(settings[2]);
         notifs = parseInt(settings[3]);
         if(settings[4] === "0" || settings[4] === "1") poseui = parseInt(settings[4]);
+        if(settings[5] !== ver) {
+          ChatRoomSendLocal(latestupdate);
+          Save();
+        }
       }
     }
   }
@@ -419,10 +427,10 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
 
       }
     }
-    if((data.Type === "Chat" || data.Type === "Emote"  || data.Type === "Whisper" || data.Type === "Action" || data.Type === "Activity") && logging === 1) {
-      var char = targetfind(data.Sender);
-      if(dbsetup === 1) {adddata(data.Type, char.Name, data.Content, "logs" + JSON.stringify(Player.MemberNumber));}
-    }
+    //if((data.Type === "Chat" || data.Type === "Emote"  || data.Type === "Whisper" || data.Type === "Action" || data.Type === "Activity") && logging === 1) {
+      //var char = targetfind(data.Sender);
+      //if(dbsetup === 1) {adddata(data.Type, char.Name, data.Content, "logs" + JSON.stringify(Player.MemberNumber));}
+    //}
 
 
     return;
@@ -535,6 +543,21 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
     })
   }
 
+  async function ebchLogging () {
+    await waitFor(() => !!ChatRoomMessage);
+    modApi.hookFunction("ChatRoomMessage", 4, (args, next) => {
+      next(args);
+      var message = Array.from(document.getElementsByClassName('ChatMessage')).slice(-1)[0].textContent;
+      if(dbsetup === 1 && lastmsg !== message) {
+        lastmsg = message;
+        adddata(Array.from(document.getElementsByClassName('ChatMessage')).slice(-1)[0].outerHTML, "logs" + JSON.stringify(Player.MemberNumber));
+        return;
+
+      }
+      return;
+    })
+  }
+
   async function crCommands() {
     await waitFor(() => !!ChatRoomSendChat);
 
@@ -544,10 +567,10 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
       var msg = ElementValue("InputChat").trim();
       //Add to whitelist
 
-      if(placeholder.indexOf("Whisper") == 0 && logging === 1) {
-        var char = targetfind(Player.MemberNumber);
-        if(dbsetup === 1) {adddata(placeholder, char.Name, msg, "logs" + JSON.stringify(Player.MemberNumber));}
-      }
+      //if(placeholder.indexOf("Whisper") == 0 && logging === 1) {
+        //var char = targetfind(Player.MemberNumber);
+        //if(dbsetup === 1) {adddata(placeholder, char.Name, msg, "logs" + JSON.stringify(Player.MemberNumber));}
+      //}
       if(msg.startsWith("!")) {
         if(msg.indexOf("!downloadlogs") === 0) {
           ChatRoomSendLocal("EBCH: Preparing export.");
@@ -955,7 +978,7 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
               ElementValue("InputChat","");
               return;
             }
-          else if (msg === "!Debug")
+          else if (msg === "!Debug" && Player.MemberNumber === 10831)
           {
             msg = "";
             if(debug === 0)
