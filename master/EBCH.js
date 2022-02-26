@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Eli's BC Helper
 // @namespace https://www.bondageprojects.com/
-// @version 0.29
+// @version 0.30
 // @description A collection of helpful features for BC
 // @author Elicia (Help from Sid)
 // @match https://bondageprojects.elementfx.com/*
@@ -22,7 +22,7 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
 
 
 (async function () {
-  const ver = "0.29"
+  const ver = "0.30"
   const modApi = bcModSdk.registerMod('EBCH', ver);
   var HearingWhitelist = [];
   var notifwords = [];
@@ -546,8 +546,9 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
   async function ebchLogging () {
     await waitFor(() => !!ChatRoomMessage);
     modApi.hookFunction("ChatRoomMessage", 4, (args, next) => {
-      if(CurrentScreen === "ChatRoom" && Array.from(document.getElementsByClassName('ChatMessage')).slice(-1)[0].textContent !== undefined) {
-          next(args);
+      next(args);
+      if(CurrentScreen === "ChatRoom" && Array.from(document.getElementsByClassName('ChatMessage')).slice(-1)[0]) {
+          
         var message = Array.from(document.getElementsByClassName('ChatMessage')).slice(-1)[0].textContent;
         if(dbsetup === 1 && lastmsg !== message) {
           lastmsg = message;
