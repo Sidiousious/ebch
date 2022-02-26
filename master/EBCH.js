@@ -557,6 +557,7 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
         }
         return;
       }
+      return;
     })
   }
 
