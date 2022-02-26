@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Eli's BC Helper
 // @namespace https://www.bondageprojects.com/
-// @version 0.26
+// @version 0.27
 // @description A collection of helpful features for BC
 // @author Elicia (Help from Sid)
 // @match https://bondageprojects.elementfx.com/*
@@ -22,7 +22,7 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
 
 
 (async function () {
-  const ver = "0.26"
+  const ver = "0.27"
   const modApi = bcModSdk.registerMod('EBCH', ver);
   var HearingWhitelist = [];
   var notifwords = [];
@@ -42,7 +42,7 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
   var textToWrite;
   var poseui = 1;
   var lastmsg;
-  var latestupdate = "EBCH updated (" + ver + "):\nAdded HTML chatlogging.\nAdded this changelog.";
+  var latestupdate = "EBCH updated (" + ver + "):\nAdded HTML chatlogging.\nAdded this changelog.\nFixed a bug with the chatlog that caused errors.";
 
   //dbfunctions
 
@@ -546,15 +546,17 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
   async function ebchLogging () {
     await waitFor(() => !!ChatRoomMessage);
     modApi.hookFunction("ChatRoomMessage", 4, (args, next) => {
-      next(args);
-      var message = Array.from(document.getElementsByClassName('ChatMessage')).slice(-1)[0].textContent;
-      if(dbsetup === 1 && lastmsg !== message) {
-        lastmsg = message;
-        adddata(Array.from(document.getElementsByClassName('ChatMessage')).slice(-1)[0].outerHTML, "logs" + JSON.stringify(Player.MemberNumber));
-        return;
+      if(CurrentScreen === "ChatRoom") {
+          next(args);
+        var message = Array.from(document.getElementsByClassName('ChatMessage')).slice(-1)[0].textContent;
+        if(dbsetup === 1 && lastmsg !== message) {
+          lastmsg = message;
+          adddata(Array.from(document.getElementsByClassName('ChatMessage')).slice(-1)[0].outerHTML, "logs" + JSON.stringify(Player.MemberNumber));
+          return;
 
+        }
+        return;
       }
-      return;
     })
   }
 
