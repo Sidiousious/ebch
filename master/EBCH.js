@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Eli's BC Helper
 // @namespace https://www.bondageprojects.com/
-// @version 0.31
+// @version 0.32
 // @description A collection of helpful features for BC
 // @author Elicia (Help from Sid)
 // @match https://bondageprojects.elementfx.com/*
@@ -22,7 +22,7 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
 
 
 (async function () {
-  const ver = "0.31"
+  const ver = "0.32"
   const modApi = bcModSdk.registerMod('EBCH', ver);
   var HearingWhitelist = [];
   var notifwords = [];
@@ -41,11 +41,14 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
   var db;
   var dbsetup = 0;
   var textToWrite;
-  var poseui = 1;
+  var poseui = 0;
   var lastmsg;
-  var latestupdate = "EBCH updated (" + ver + "):\n-Changed the positioning of the pose UI.\n-Tinkered with the notifications system.\n-Made chatlogging more reliable in regards to outgoing whispers.";
-                      // x  , y , size, spacing
-  const puicoords = [350, 10, 40, 10];
+  var latestupdate = "EBCH updated (" + ver + "):\n-Further enhanced the pose ui positioning.\n-Added 2 secs cooldown to pose changing.\n-Added a small quick menu at the lower left of the screen when you click your own avatar.\n-Fixed a settings load issue.";
+                      // x  , y , size x, size y, spacing
+  const puicoords = [300, 10, 100, 40, 5];
+                      // x, y, size, spacing
+  const selfmenuanchor = [20, 780, 40, 10];
+  var posecd;
 
   //dbfunctions
 
@@ -201,7 +204,8 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
   }
 
   function Pose(tar, pose){
-    if(CharacterCanChangeToPose(tar, pose) && !tar.BlackList.includes(Player.MemberNumber) && (tar.ItemPermission <=2 || tar.ID == 0 || tar.IsLoverOfPlayer() || tar.IsOwnedByPlayer() || tar.WhiteList.includes(Player.MemberNumber))){
+    const currenttime = Date.now();
+    if(Player.Effect.indexOf("Block") === -1 && posecd <= currenttime && CharacterCanChangeToPose(tar, pose) && !tar.BlackList.includes(Player.MemberNumber) && (tar.ItemPermission <=2 || tar.ID == 0 || tar.IsLoverOfPlayer() || tar.IsOwnedByPlayer() || tar.WhiteList.includes(Player.MemberNumber))){
       CharacterSetActivePose(tar, pose);
       ChatRoomCharacterUpdate(tar);
     if(tar.MemberNumber === Player.MemberNumber)
@@ -210,30 +214,43 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
     } else {
         if(pose === "Yoked") {
         ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " raises " + tar.Name + "'s hands."}]});
+        posecd = currenttime + 2000;
         } else if (pose === "BaseLower") {
         ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " helps " + tar.Name + " up on their feet."}]});
+        posecd = currenttime + 2000;
         } else if (pose === "BaseUpper") {
         ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " lets " + tar.Name + " relax their arms."}]});
+        posecd = currenttime + 2000;
         } else if (pose === "KneelingSpread") {
         ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " lowers " + tar.Name + " on their knees, forcing their legs open."}]});
+        posecd = currenttime + 2000;
         } else if (pose === "Kneel") {
         ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " lowers " + tar.Name + " on their knees."}]});
+        posecd = currenttime + 2000;
         } else if (pose === "OverTheHead") {
         ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " forcibly raises " + tar.Name + "'s hands above their head."}]});
+        posecd = currenttime + 2000;
         } else if (pose === "Hogtied") {
         ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " lowers " + tar.Name + " on their belly."}]});
+        posecd = currenttime + 2000;
         } else if (pose === "AllFours") {
         ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " forces " + tar.Name + " on all fours."}]});
+        posecd = currenttime + 2000;
         } else if (pose === "BackBoxTie") {
         ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " draws " + tar.Name + "'s arms behind their back."}]});
+        posecd = currenttime + 2000;
         } else if (pose === "LegsClosed") {
         ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " helps " + tar.Name + " stand straight with their legs closed."}]});
+        posecd = currenttime + 2000;
         } else if (pose === "Spread") {
         ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " forces " + tar.Name + " to spread their legs."}]});
+        posecd = currenttime + 2000;
         } else if (pose === "BackElbowTouch") {
         ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " draws " + tar.Name + "'s arms tight behind their back, elbows almost touching."}]});
+        posecd = currenttime + 2000;
         } else if (pose === "LegsOpen") {
         ServerSend("ChatRoomChat", { Content: "Beep", Type: "Action", Dictionary: [{Tag: "Beep", Text: Player.Name + " helps " + tar.Name + " stand straight with their legs open."}]});
+        posecd = currenttime + 2000;
         } else {
         ChatRoomSendLocal("EBCH: " + tar.Name + " cannot be set to " + pose + " at the moment.");
         }
@@ -326,8 +343,8 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
         debug = parseInt(settings[0]);
         ungarble = parseInt(settings[1]);
         logging = parseInt(settings[2]);
-        notifs = parseInt(settings[3]);
-        if(settings[4] === "0" || settings[4] === "1") poseui = parseInt(settings[4]);
+        notifs = parseInt(settings[4]);
+        poseui = parseInt(settings[3]);
         if(settings[5] !== ver) {
           ChatRoomSendLocal(latestupdate);
           Save();
@@ -336,68 +353,95 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
     }
   }
 
+  function SelfMenuDraw() {
+    if(ungarble === 0)
+    {
+      DrawButton(selfmenuanchor[0], selfmenuanchor[1], selfmenuanchor[2], selfmenuanchor[2], "Ung", "White", "", "EBCH: Turn on Ungarble (Hearing Whitelist)");
+    } else if(ungarble === 1)
+    {
+      DrawButton(selfmenuanchor[0], selfmenuanchor[1], selfmenuanchor[2], selfmenuanchor[2], "Ung", "Yellow", "", "EBCH: Turn on Ungarble (all)");
+    } else if(ungarble === 2) {
+      DrawButton(selfmenuanchor[0], selfmenuanchor[1], selfmenuanchor[2], selfmenuanchor[2], "Ung", "Green", "", "EBCH: Turn off ungarble");
+    }
+    if(notifs === 0)
+    {
+      DrawButton(selfmenuanchor[0] + selfmenuanchor[2] + selfmenuanchor[3], selfmenuanchor[1], selfmenuanchor[2], selfmenuanchor[2], "Not", "White", "", "EBCH: Turn on custom notifications");
+    } else if(notifs === 1) {
+      DrawButton(selfmenuanchor[0] + selfmenuanchor[2] + selfmenuanchor[3], selfmenuanchor[1], selfmenuanchor[2], selfmenuanchor[2], "Not", "Green", "", "EBCH: Turn off custom notifications");
+    }
+    if(logging === 0)
+    {
+      DrawButton(selfmenuanchor[0], selfmenuanchor[1] + selfmenuanchor[2] + selfmenuanchor[3], selfmenuanchor[2], selfmenuanchor[2], "Log", "White", "", "EBCH: Turn on chatlogging");
+    } else if (logging === 1) {
+      DrawButton(selfmenuanchor[0], selfmenuanchor[1] + selfmenuanchor[2] + selfmenuanchor[3], selfmenuanchor[2], selfmenuanchor[2], "Log", "Green", "", "EBCH: Turn off chatlogging");
+    }
+
+    
+  }
+
   function PoseMenuDraw() {
     if(poseui === 1) {
       var target = CurrentCharacter;
+      // x  , y , size x, size y, spacing
       if(CharacterCanChangeToPose(target, "BaseUpper")) {
-        DrawButton(puicoords[0] + puicoords[2] + puicoords[3],puicoords[1],puicoords[2],puicoords[2],"","White","","Base Hands");
+        DrawButton(puicoords[0] + puicoords[2] + puicoords[4],puicoords[1],puicoords[2],puicoords[3],"BaseHand","White","","Base Hands");
       } else {
-        DrawButton(puicoords[0] + puicoords[2] + puicoords[3],puicoords[1],puicoords[2],puicoords[2],"","Red","","Base Hands");
+        DrawButton(puicoords[0] + puicoords[2] + puicoords[4],puicoords[1],puicoords[2],puicoords[3],"BaseHand","Red","","Base Hands");
       }
       if(CharacterCanChangeToPose(target, "Yoked")) {
-        DrawButton(puicoords[0] + (puicoords[2] + puicoords[3]) * 2,puicoords[1],puicoords[2],puicoords[2], "", "White","","Hands Up");
+        DrawButton(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1]  + (puicoords[3] + puicoords[4]),puicoords[2],puicoords[3], "HandsUp", "White","","Hands Up");
       } else {
-        DrawButton(puicoords[0] + (puicoords[2] + puicoords[3]) * 2,puicoords[1],puicoords[2],puicoords[2], "", "Red","","Hands Up");
+        DrawButton(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1]  + (puicoords[3] + puicoords[4]),puicoords[2],puicoords[3], "HandsUp", "Red","","Hands Up");
       }
       if(CharacterCanChangeToPose(target, "OverTheHead")) {
-        DrawButton(puicoords[0] + (puicoords[2] + puicoords[3]),puicoords[1] + (puicoords[2] + puicoords[3]),puicoords[2],puicoords[2], "", "White","","Hands Up High");
+        DrawButton(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 2,puicoords[2],puicoords[3], "HandsHigh", "White","","Hands Up High");
       } else {
-        DrawButton(puicoords[0] + (puicoords[2] + puicoords[3]),puicoords[1] + (puicoords[2] + puicoords[3]),puicoords[2],puicoords[2], "", "Red","","Hands Up High");
+        DrawButton(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 2,puicoords[2],puicoords[3], "HandsHigh", "Red","","Hands Up High");
       }
       if(CharacterCanChangeToPose(target, "BackBoxTie")) {
-        DrawButton(puicoords[0] + (puicoords[2] + puicoords[3]) * 2,puicoords[1] + (puicoords[2] + puicoords[3]),puicoords[2],puicoords[2], "", "White","","Back Loose");
+        DrawButton(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 3,puicoords[2],puicoords[3], "BackLoose", "White","","Back Loose");
       } else {
-        DrawButton(puicoords[0] + (puicoords[2] + puicoords[3]) * 2,puicoords[1] + (puicoords[2] + puicoords[3]),puicoords[2],puicoords[2], "", "Red","","Back Loose");
+        DrawButton(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 3,puicoords[2],puicoords[3], "BackLoose", "Red","","Back Loose");
       }
       if(CharacterCanChangeToPose(target, "BackElbowTouch")) {
-        DrawButton(puicoords[0] + (puicoords[2] + puicoords[3]),puicoords[1] + (puicoords[2] + puicoords[3]) * 2,puicoords[2],puicoords[2], "", "White","","Back Tight");
+        DrawButton(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 4,puicoords[2],puicoords[3], "BackTight", "White","","Back Tight");
       } else {
-        DrawButton(puicoords[0] + (puicoords[2] + puicoords[3]),puicoords[1] + (puicoords[2] + puicoords[3]) * 2,puicoords[2],puicoords[2], "", "Red","","Back Tight");
+        DrawButton(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 4,puicoords[2],puicoords[3], "BackTight", "Red","","Back Tight");
       }
       if(CharacterCanChangeToPose(target, "BaseLower")) {
-        DrawButton(puicoords[0] + (puicoords[2] + puicoords[3]),puicoords[1] + (puicoords[2] + puicoords[3]) * 3,puicoords[2],puicoords[2],"","White","","Stand");
+        DrawButton(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 6,puicoords[2],puicoords[3],"Standing","White","","Stand");
       } else {
-        DrawButton(puicoords[0] + (puicoords[2] + puicoords[3]),puicoords[1] + (puicoords[2] + puicoords[3]) * 3,puicoords[2],puicoords[2],"","Red","","Stand");
+        DrawButton(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 6,puicoords[2],puicoords[3],"Standing","Red","","Stand");
       }
       if(CharacterCanChangeToPose(target, "Kneel")) {
-        DrawButton(puicoords[0] + (puicoords[2] + puicoords[3]) * 2,puicoords[1] + (puicoords[2] + puicoords[3]) * 3,puicoords[2],puicoords[2],"","White","","Kneel");
+        DrawButton(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 7,puicoords[2],puicoords[3],"Kneeling","White","","Kneel");
       } else {
-        DrawButton(puicoords[0] + (puicoords[2] + puicoords[3]) * 2,puicoords[1] + (puicoords[2] + puicoords[3]) * 3,puicoords[2],puicoords[2],"","Red","","Kneel");
+        DrawButton(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 7,puicoords[2],puicoords[3],"Kneeling","Red","","Kneel");
       }
       if(CharacterCanChangeToPose(target, "KneelingSpread")) {
-        DrawButton(puicoords[0] + (puicoords[2] + puicoords[3]),puicoords[1] + (puicoords[2] + puicoords[3]) * 4,puicoords[2],puicoords[2],"","White","","Kneel Spread");
+        DrawButton(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 8,puicoords[2],puicoords[3],"KneelSpr","White","","Kneel Spread");
       } else {
-        DrawButton(puicoords[0] + (puicoords[2] + puicoords[3]),puicoords[1] + (puicoords[2] + puicoords[3]) * 4,puicoords[2],puicoords[2],"","Red","","Kneel Spread");
+        DrawButton(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 8,puicoords[2],puicoords[3],"KneelSpr","Red","","Kneel Spread");
       }
       if(CharacterCanChangeToPose(target, "LegsClosed")) {
-        DrawButton(puicoords[0] + (puicoords[2] + puicoords[3]) * 2,puicoords[1] + (puicoords[2] + puicoords[3]) * 4,puicoords[2],puicoords[2],"","White","","Standing Closed Legs");
+        DrawButton(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 9,puicoords[2],puicoords[3],"StandCl","White","","Standing Closed Legs");
       } else {
-        DrawButton(puicoords[0] + (puicoords[2] + puicoords[3]) * 2,puicoords[1] + (puicoords[2] + puicoords[3]) * 4,puicoords[2],puicoords[2],"","Red","","Standing Closed Legs");
+        DrawButton(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 9,puicoords[2],puicoords[3],"StandCl","Red","","Standing Closed Legs");
       }
       if(CharacterCanChangeToPose(target, "Spread")) {
-        DrawButton(puicoords[0] + (puicoords[2] + puicoords[3]),puicoords[1] + (puicoords[2] + puicoords[3]) * 5,puicoords[2],puicoords[2],"","White","","Standing Spread");
+        DrawButton(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 10,puicoords[2],puicoords[3],"StandSpr","White","","Standing Spread");
       } else {
-        DrawButton(puicoords[0] + (puicoords[2] + puicoords[3]),puicoords[1] + (puicoords[2] + puicoords[3]) * 5,puicoords[2],puicoords[2],"","Red","","Standing Spread");
+        DrawButton(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 10,puicoords[2],puicoords[3],"StandSpr","Red","","Standing Spread");
       }
       if(CharacterCanChangeToPose(target, "Hogtied")) {
-        DrawButton(puicoords[0] + (puicoords[2] + puicoords[3]),puicoords[1] + (puicoords[2] + puicoords[3]) * 6,puicoords[2],puicoords[2], "", "White","","Belly Lie");
+        DrawButton(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 12,puicoords[2],puicoords[3], "BellyLie", "White","","Belly Lie");
       } else {
-        DrawButton(puicoords[0] + (puicoords[2] + puicoords[3]),puicoords[1] + (puicoords[2] + puicoords[3]) * 6,puicoords[2],puicoords[2], "", "Red","","Belly Lie");
+        DrawButton(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 12,puicoords[2],puicoords[3], "BellyLie", "Red","","Belly Lie");
       }
       if(CharacterCanChangeToPose(target, "AllFours")) {
-        DrawButton(puicoords[0] + (puicoords[2] + puicoords[3]) * 2,puicoords[1] + (puicoords[2] + puicoords[3]) * 6,puicoords[2],puicoords[2],"","White","","All Fours");
+        DrawButton(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 13,puicoords[2],puicoords[3],"AllFours","White","","All Fours");
       } else {
-        DrawButton(puicoords[0] + (puicoords[2] + puicoords[3]) * 2,puicoords[1] + (puicoords[2] + puicoords[3]) * 6,puicoords[2],puicoords[2],"","Red","","All Fours");
+        DrawButton(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 13,puicoords[2],puicoords[3],"AllFours","Red","","All Fours");
       }
     }
   }
@@ -426,6 +470,7 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
     //}
     //load settings when entering chatroom
     if(data.Content === "ServerEnter" && data.Sender === Player.MemberNumber) {
+      posecd = Date.now();
       ChatRoomSendLocal("EBCH: !ebchhelp for commands.");
       Load();
       if(dbsetup === 0) {openDb("BCLogs"+ JSON.stringify(Player.MemberNumber), "logs" + JSON.stringify(Player.MemberNumber));}
@@ -507,7 +552,59 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
   async function poseMenuOthersClick() {
     await waitFor(() => DialogClick);
     modApi.hookFunction("DialogClick", 4, (args,next) => {
-      if(poseui === 1 && MouseIn(puicoords[0],puicoords[1],puicoords[2],puicoords[2]) && CurrentCharacter.ID !== 0)
+      if(CurrentCharacter.ID === 0) {
+        //ungarble button
+        if(MouseIn(selfmenuanchor[0], selfmenuanchor[1], selfmenuanchor[2], selfmenuanchor[2])) {
+          if(ungarble === 0) {
+            ungarble = 1;
+            //ChatroomSendLocal("EBCH: Ungarble: Hearing Whitelist turned on.\n Type !ebchungarblehelp for commands.");
+            ClearButtons();
+            DialogDraw();
+            Save();
+          } else if(ungarble === 1) {
+            ungarble = 2;
+            //ChatroomSendLocal("EBCH: Ungarble all turned on.\n Type !ebchungarblehelp for commands.");
+            ClearButtons();
+            DialogDraw();
+            Save();
+          } else if(ungarble === 2) {
+            ungarble = 0;
+            //ChatroomSendLocal("EBCH: Ungarble turned off.");
+            ClearButtons();
+            DialogDraw();
+            Save();
+          }
+        } else if (MouseIn(selfmenuanchor[0] + selfmenuanchor[2] + selfmenuanchor[3], selfmenuanchor[1], selfmenuanchor[2], selfmenuanchor[2])) {
+          if(notifs === 0){
+            notifs = 1;
+            //ChatroomSendLocal("EBCH: Custom notifications turned on.\nType !ebchnotifhelp for commands.");
+            ClearButtons();
+            DialogDraw();
+            Save();
+          } else if (notifs === 1){
+            notifs = 0;
+            //ChatroomSendLocal("EBCH: Custom notifications turned off.");
+            ClearButtons();
+            DialogDraw();
+            Save();
+          }
+        } else if (MouseIn(selfmenuanchor[0], selfmenuanchor[1] + selfmenuanchor[2] + selfmenuanchor[3], selfmenuanchor[2], selfmenuanchor[2])) {
+          if(logging === 0) {
+            logging = 1;
+            //ChatroomSendLocal("EBCH: Chatlogging turned on.\nType !ebchlogginghelp for commands.");
+            ClearButtons();
+            DialogDraw();
+            Save();
+          } else if (logging === 1) {
+            logging = 0;
+            //ChatroomSendLocal("EBCH: Chatlogging turned off.\n");
+            ClearButtons();
+            DialogDraw();
+            Save();
+          }
+        }
+      }
+      if(poseui === 1 && MouseIn(puicoords[0] + 50,puicoords[1],40,40) && CurrentCharacter.ID !== 0)
       {
         poseui = 0;
         ClearButtons();
@@ -515,7 +612,7 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
         Save();
         
       }
-      else if(poseui === 0 && MouseIn(puicoords[0],puicoords[1],puicoords[2],puicoords[2]) && CurrentCharacter.ID !== 0)
+      else if(poseui === 0 && MouseIn(puicoords[0] + 50,puicoords[1],40,40) && CurrentCharacter.ID !== 0)
       {
         poseui = 1;
         ClearButtons();
@@ -524,51 +621,51 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
       }
       
       if(poseui === 1) {
-          if (MouseIn(puicoords[0] + puicoords[2] + puicoords[3],puicoords[1],puicoords[2],puicoords[2]) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "BaseUpper")) {
+          if (MouseIn(puicoords[0] + puicoords[2] + puicoords[4],puicoords[1],puicoords[2],puicoords[3]) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "BaseUpper")) {
           Pose(CurrentCharacter, "BaseUpper");
           return;
         }
-        if (MouseIn(puicoords[0] + (puicoords[2] + puicoords[3]) * 2,puicoords[1],puicoords[2],puicoords[2]) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "Yoked")) {
+        if (MouseIn(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1]  + (puicoords[3] + puicoords[4]),puicoords[2],puicoords[3]) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "Yoked")) {
           Pose(CurrentCharacter, "Yoked");
           return;
         }
-        if (MouseIn(puicoords[0] + (puicoords[2] + puicoords[3]),puicoords[1] + (puicoords[2] + puicoords[3]),puicoords[2],puicoords[2]) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "OverTheHead")) {
+        if (MouseIn(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 2,puicoords[2],puicoords[3]) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "OverTheHead")) {
           Pose(CurrentCharacter, "OverTheHead");
           return;
         }
-        if (MouseIn(puicoords[0] + (puicoords[2] + puicoords[3]) * 2,puicoords[1] + (puicoords[2] + puicoords[3]),puicoords[2],puicoords[2]) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "BackBoxTie")) {
+        if (MouseIn(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 3,puicoords[2],puicoords[3]) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "BackBoxTie")) {
           Pose(CurrentCharacter, "BackBoxTie");
           return;
         }
-        if (MouseIn(puicoords[0] + (puicoords[2] + puicoords[3]),puicoords[1] + (puicoords[2] + puicoords[3]) * 2,puicoords[2],puicoords[2]) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "BackElbowTouch")) {
+        if (MouseIn(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 4,puicoords[2],puicoords[3]) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "BackElbowTouch")) {
           Pose(CurrentCharacter, "BackElbowTouch");
           return;
         }
-        if (MouseIn(puicoords[0] + (puicoords[2] + puicoords[3]),puicoords[1] + (puicoords[2] + puicoords[3]) * 3,puicoords[2],puicoords[2]) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "BaseLower")) {
+        if (MouseIn(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 6,puicoords[2],puicoords[3]) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "BaseLower")) {
           Pose(CurrentCharacter, "BaseLower");
           return;
         }
-        if (MouseIn(puicoords[0] + (puicoords[2] + puicoords[3]) * 2,puicoords[1] + (puicoords[2] + puicoords[3]) * 3,puicoords[2],puicoords[2]) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "Kneel")) {
+        if (MouseIn(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 7,puicoords[2],puicoords[3]) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "Kneel")) {
           Pose(CurrentCharacter, "Kneel");
           return;
         }
-        if (MouseIn(puicoords[0] + (puicoords[2] + puicoords[3]),puicoords[1] + (puicoords[2] + puicoords[3]) * 4,puicoords[2],puicoords[2]) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "KneelingSpread")) {
+        if (MouseIn(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 8,puicoords[2],puicoords[3]) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "KneelingSpread")) {
           Pose(CurrentCharacter, "KneelingSpread");
           return;
         }
-        if (MouseIn(puicoords[0] + (puicoords[2] + puicoords[3]) * 2,puicoords[1] + (puicoords[2] + puicoords[3]) * 4,puicoords[2],puicoords[2]) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "LegsClosed")) {
+        if (MouseIn(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 9,puicoords[2],puicoords[3]) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "LegsClosed")) {
           Pose(CurrentCharacter, "LegsClosed");
           return;
         }
-        if (MouseIn(puicoords[0] + (puicoords[2] + puicoords[3]),puicoords[1] + (puicoords[2] + puicoords[3]) * 5,puicoords[2],puicoords[2]) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "Spread")) {
+        if (MouseIn(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 10,puicoords[2],puicoords[3]) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "Spread")) {
           Pose(CurrentCharacter, "Spread");
           return;
         }
-        if (MouseIn(puicoords[0] + (puicoords[2] + puicoords[3]),puicoords[1] + (puicoords[2] + puicoords[3]) * 6,puicoords[2],puicoords[2]) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "Hogtied")) {
+        if (MouseIn(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 12,puicoords[2],puicoords[3]) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "Hogtied")) {
           Pose(CurrentCharacter, "Hogtied");
           return;
         }
-        if (MouseIn(puicoords[0] + (puicoords[2] + puicoords[3]) * 2,puicoords[1] + (puicoords[2] + puicoords[3]) * 6,puicoords[2],puicoords[2]) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "AllFours")) {
+        if (MouseIn(puicoords[0] + (puicoords[2] + puicoords[4]),puicoords[1] + (puicoords[3] + puicoords[4]) * 13,puicoords[2],puicoords[3]) && CurrentCharacter.ID !== 0 && CharacterCanChangeToPose(CurrentCharacter, "AllFours")) {
           Pose(CurrentCharacter, "AllFours");
           return;
         }
@@ -581,10 +678,13 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
   async function poseMenuOthers() {
     await waitFor(() => !!DialogDraw);
     modApi.hookFunction('DialogDraw', 4, (args,next) => {
+      if(CurrentCharacter.ID === 0) {
+        SelfMenuDraw();
+      }
       if(poseui === 1 && CurrentCharacter.ID !== 0){
-        DrawButton(puicoords[0],puicoords[1],puicoords[2],puicoords[2],"","Green","","Turn Pose UI off");
+        DrawButton(puicoords[0] + 50,puicoords[1],40,40,"Poses","Green","","EBCH: Pose UI off");
       } else if(poseui === 0 && CurrentCharacter.ID !== 0) {
-        DrawButton(puicoords[0],puicoords[1],puicoords[2],puicoords[2],"","White","","Turn Pose UI on");
+        DrawButton(puicoords[0] + 50,puicoords[1],40,40,"Poses","White","","EBCH: Pose UI on");
       }
       
       if(CurrentCharacter.ID !== 0 && poseui === 1) {
@@ -621,6 +721,20 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
         //if(dbsetup === 1) {adddata(placeholder, char.Name, msg, "logs" + JSON.stringify(Player.MemberNumber));}
       //}
       if(msg.startsWith("!")) {
+        if(msg.indexOf("!defaults") === 0) {
+          ChatRoomSendLocal("EBCH: Resetting to defaults and clearing saved settings.");
+          logging = 0;
+          notifs = 0;
+          ungarble = 0;
+          poseui = 0;
+          HearingWhitelist = [];
+          notifwords = [];
+          Save();
+          msg = "";
+          ElementValue("InputChat","");
+          return;
+
+        }
         if(msg.indexOf("!downloadlogs") === 0) {
           ChatRoomSendLocal("EBCH: Preparing export.");
           saveTextAsFile();
@@ -685,7 +799,7 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
             subs = msg.substring(21).trim();
             msg = "";
             var target = targetfind(subs);
-            if(target !== "" || target !== null || !HearingWhitelist.includes(target.MemberNumber)) {
+            if(target !== "" && target !== null && target !== undefined && !HearingWhitelist.includes(target.MemberNumber)) {
             HearingWhitelist.push(target.MemberNumber);
             ChatRoomSendLocal("EBCH: Added " + target.Name + " to the hearing whitelist.");
             Save();
@@ -710,7 +824,7 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
             }
 
           } else {
-            ChatRoomSendLocal("EBCH: Couldn't find target in chatroom.");
+            ChatRoomSendLocal("EBCH: Couldn't find target in whitelist.");
           }
           ElementValue("InputChat","");
           return;
@@ -1044,7 +1158,7 @@ var bcModSdk=function(){"use strict";const o="1.0.2";function e(o){alert("Mod ER
           }
         else if(msg.indexOf("!ebchhelp") === 0) {
           msg = "";
-          ChatRoomSendLocal("Welcome to EBCH! Script written by Elicia with the help of Sid\nHelp commands:\n!ebchhelp: this help menu.\n!ebchposehelp: displays all the available pose commands.\n!ebchlogginghelp: displays all the chatlogging related commands.\n!ebchnotifhelp: displays all the notification related commands.\n!ebchungarblehelp: displays all the ungarble related commands.");
+          ChatRoomSendLocal("Welcome to EBCH! Script written by Elicia with the help of Sid\nHelp commands:\n!ebchhelp: this help menu.\n!ebchposehelp: displays all the available pose commands.\n!ebchlogginghelp: displays all the chatlogging related commands.\n!ebchnotifhelp: displays all the notification related commands.\n!ebchungarblehelp: displays all the ungarble related commands.\n!defaults: Resets EBCH settings and clears saved settings.");
           ElementValue("InputChat","");
           return;
         }
